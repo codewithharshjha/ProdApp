@@ -1,0 +1,140 @@
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+    container_name: rabbitmq
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+
+
+  product-service:
+    build:
+      context: .
+      dockerfile: ./apps/product-service/Dockerfile
+
+    container_name: product-service
+
+    ports:
+      - "8003:8003"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    environment:
+      - REDIS_URL=redis://redis:6379
+
+    depends_on:
+      - redis
+
+  user-service:
+    build:
+      context: .
+      dockerfile: ./apps/user-service/Dockerfile
+
+    container_name: user-service
+
+    ports:
+      - "8004:8004"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    env_file:
+      - ./apps/user-service/.env
+
+    depends_on:
+      - redis
+
+  order-service:
+    build:
+      context: .
+      dockerfile: ./apps/order-service/Dockerfile
+
+    container_name: order-service
+
+    ports:
+      - "8001:8001"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    environment:
+      - REDIS_URL=redis://redis:6379
+
+    depends_on:
+      - redis
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: ./apps/api-gateway/Dockerfile
+
+    container_name: api-gateway
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    env_file:
+      - ./apps/api-gateway/.env
+
+    environment:
+      - REDIS_URL=redis://redis:6379
+
+    depends_on:
+      - redis
+      - user-service
+      - product-service
+      - order-service
+
+  Client:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile
+
+    container_name: client
+
+    ports:
+      - "30002:3002"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    env_file:
+      - ./apps/client/.env
+  jenkins:
+    image: jenkins/jenkins:lts
+
+    container_name: jenkins
+
+    user: root
+
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:

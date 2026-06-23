@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+  url="postgresql://postgres:postgres1234@localhost:5432/product_db?schema=public"
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  shortDescription String
+  description      String
+  price            Decimal  @db.Decimal(10, 2)
+  category         String?
+  sizes            String[] @default([])
+  colors           String[] @default([])
+  images           Json     @default("{}") // Record<color, imageUrl>
+  createdAt        DateTime @default(now())
+  // updatedAt        DateTime @updatedAt
+}

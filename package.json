@@ -1,0 +1,36 @@
+{
+  "name": "my-turborepo",
+  "version": "1.0.0",
+  "packageManager": "npm@11.10.1",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --ui=stream",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "prettier": "^3.6.2",
+    "prisma": "^6.7.0",
+    "turbo": "^2.9.7",
+    "typescript": "5.9.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "amqplib": "^2.0.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.0",
+    "ioredis": "^5.10.0",
+    "rate-limit-redis": "^4.3.1",
+    "redis": "^5.11.0",
+    "resend": "^6.12.4"
+  }
+}
