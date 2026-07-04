@@ -13,6 +13,12 @@ function toOrderDto(order: {
   items: {
     id: string;
     productId: string;
+    productName: string;
+    productShortDescription: string;
+    productDescription: string;
+    productColors: string[];
+    productSizes: string[];
+    productImages: Record<string, string>;
     quantity: number;
     price: { toNumber(): number } | number | string;
     selectedSize: string | null;
@@ -30,7 +36,11 @@ function toOrderDto(order: {
     items: order.items.map((item) => ({
       
       productId: item.productId,
+      name: item.productName,
+      shortDescription: item.productShortDescription,
+      description: item.productDescription,
       quantity: item.quantity,
+      images: item.productImages,
       price:
         typeof item.price === "object" && "toNumber" in item.price
           ? item.price.toNumber()
@@ -78,13 +88,23 @@ console.log("items from createOrder",input.items);
     include: { items: true },
   });
  
-  return toOrderDto(order as any);
+  // return toOrderDto(order as any);
+  return order
 }
 
 export async function getOrdersByUser(userId: string) {
   const orders = await orderPrisma.order.findMany({
     where: { userId },
-    include: { items: true },
+    include: { 
+      // name: true,
+      // shortDescription: true,
+      // description: true,
+      // images: true,
+      // quantity: true,
+      // color: true,
+      // size: true,
+      items: true
+     },
     orderBy: { createdAt: "desc" },
   });
   return orders.map(toOrderDto as any);

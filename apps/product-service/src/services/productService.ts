@@ -24,8 +24,8 @@ export async function listProducts(query: ListProductsQuery) {
   
   const cacheKey = `products:${JSON.stringify(query)}`;
 
-
   const cached = await redis.get(cacheKey);
+  console.log("redis kkey", await redis.get(cacheKey));
 
   if (cached) {
     return JSON.parse(cached);
@@ -90,8 +90,11 @@ export async function getProductById(id: string) {
 }
 
 export async function createProduct(input: CreateProductInput) {
-  await clearProductCache()
-  const product = await prisma.product.create({
+ 
+  try{ console.log("product from service", input);
+  // await clearProductCache()
+ 
+      const product = await prisma.product.create({
     data: {
       name: input.name,
       shortDescription: input.shortDescription,
@@ -103,7 +106,14 @@ export async function createProduct(input: CreateProductInput) {
       images: input.images as object,
     },
   });
+  console.log("product from servicessss", product);
   return toProductDto(product);
+  }
+  catch(error){
+    console.error("Error creating product:", error);
+    throw error;
+  }
+
 }
 
 export async function updateProduct(id: string, input: UpdateProductInput) {

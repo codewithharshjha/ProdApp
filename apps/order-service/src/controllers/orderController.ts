@@ -4,6 +4,7 @@ import axios from "axios";
 import { createOrderSchema } from "../validators/orderValidator.js";
 import * as orderService from "../services/orderService.js";
 import { sendOrderEmail } from "../../../../packages/emailService/src/sendEmail.js"
+import { publishOrderEmail } from "../../../../packages/emailService/src/publisher.js"
 interface WithOrderId extends Request {
   params: {
     id: string;
@@ -17,12 +18,15 @@ export async function createOrder(req: Request, res: Response) {
    
 
     const userId = req.headers["x-user-id"] as string | undefined;
+    console.log("userId from createOrder controller", userId);
     // Fetch the user's email from the database
     // const userProfile = await userPrisma.userProfile.findUnique({
     //   where: { userId: userId },
     //   select: { email: true },
     // });
-    const userProfile= await axios.get(`http://localhost:8004/users/sync`,
+    console.log("userId from createOrder controller", userId);
+    const userProfile= await axios.post(`http://localhost:8004/users/sync`,
+      {},
       {
         headers:{
           "x-user-id": userId || "",
@@ -34,7 +38,7 @@ export async function createOrder(req: Request, res: Response) {
       return null;
     });
     console.log("userProfile from createOrder controller", userProfile);
-    const userEmail = userProfile.data.email;
+    const userEmail = userProfile.email;
     if (!userEmail) {
       return res.status(400).send({ error: "User email not found" });
     }
@@ -56,7 +60,8 @@ export async function createOrder(req: Request, res: Response) {
     console.log("service controlle")
     const order = await orderService.createOrder(userId!, parsed.data);
 console.log("order from controller", order);
-    await sendOrderEmail(order, userEmail);
+    // await sendOrderEmail(order, userEmail);
+    await publishOrderEmail(order, userEmail);
     return res.status(201).send(order);
   }
   catch (error) {
@@ -68,6 +73,7 @@ console.log("order from controller", order);
 }
 
 export async function getMyOrders(req: Request & { userId: string }, res: Response) {
+  console.log("userId from getMyOrders controller", req.userId);
   const orders = await orderService.getOrdersByUser(req.userId);
 
   return res.send(orders);

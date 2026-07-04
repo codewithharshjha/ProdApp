@@ -46,6 +46,7 @@ export async function createProductHandler(req: Request, res: Response) {
   console.log("createProductHandler",req.body);
   try {
       const parsed = createProductSchema.safeParse(req.body);
+      console.log("parsed from controller", parsed);  
   if (!parsed.success) {
     return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten() });
   }

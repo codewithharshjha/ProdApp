@@ -19,9 +19,15 @@ export async function connectRedis() {
   }
 }
 export async function clearProductCache() {
-  for await (const key of redis.scanIterator({
+  for await (const keys of redis.scanIterator({
     MATCH: "products:*",
   })) {
-    await redis.del(key);
+    if (!Array.isArray(keys) || keys.length === 0) {
+      continue;
+    }
+
+    console.log("Deleting:", keys);
+
+    await redis.del({...keys});
   }
 }

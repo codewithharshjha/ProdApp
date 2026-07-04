@@ -16,7 +16,13 @@ import {
 export async function getMe(req: Request, res: Response) {
   console.log("getMe controller called");
  try {
-   const userId = req.userId;
+   const userId = req.headers["x-user-id"] as string | "";
+   console.log("userId in getMe:", userId);
+   const alreadyProfile = await getOrCreateProfile(userId);
+   console.log("alreadyProfile in getMe:", alreadyProfile);
+   if (alreadyProfile) {
+    return res.status(200).json(alreadyProfile);
+   }
   const parsed = updateProfileSchema.safeParse(req.body);
   
   if (!parsed.success) {

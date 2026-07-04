@@ -6,7 +6,7 @@ const router = Router();
 console.log("order router loaded");
 // Public read
 router.post("/create", orderController.createOrder);
-
+router.get("/me", orderController.getMyOrders);
 
 // router.post("/create", (req, res) => {
 //   console.log("ROUTE HIT");

@@ -3,13 +3,13 @@ import { userPrisma } from "@repo/user-db"
 import type { UpdateProfileInput, AddCartItemInput, UpdateCartItemInput } from "../validators/userValidator";
 
 
-export async function getOrCreateProfile(userId: string, parsed: any) {
+export async function getOrCreateProfile(userId: string, parsed?: any) {
   try {
     console.log("getOrCreateProfile called with userId:", parsed);
 
     let profile = await userPrisma.userProfile.findUnique({ where: { userId } });
    
-    console.log("Profile found in getOrCreateProfile:", profile);
+    
     if (!profile) {
       profile = await userPrisma.userProfile.create({
         data: {
@@ -27,7 +27,7 @@ export async function getOrCreateProfile(userId: string, parsed: any) {
       });
       return profile
     }
-
+return profile
   }
   catch (e) {
     console.error("Error in getOrCreateProfile:", e);
