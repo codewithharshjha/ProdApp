@@ -19,69 +19,99 @@ function toProductDto(row: NonNullable<ProductRow>) {
 }
 
 export async function listProducts(query: ListProductsQuery) {
-   try {
-     console.log("LISTING PRODUCTS");
-  
-  const cacheKey = `products:${JSON.stringify(query)}`;
+  try {
+    const cacheKey = `products:${JSON.stringify(query)}`;
 
-  const cached = await redis.get(cacheKey);
-  console.log("redis kkey", await redis.get(cacheKey));
+    console.log("\n===============================");
+    console.log("📦 Product List Request");
+    console.log("🔑 Cache Key:", cacheKey);
 
-  if (cached) {
-    return JSON.parse(cached);
-  }
+    // Try Redis first
+    const cached = await redis.get(cacheKey);
 
-  console.log("CACHE MISS");
+    if (cached) {
+      console.log("✅ CACHE HIT");
+      console.log("===============================\n");
 
-  const { page, limit, search, category } = query;
-  const skip = (page - 1) * limit;
+      return JSON.parse(cached);
+    }
 
-  const where: Record<string, unknown> = {};
+    console.log("❌ CACHE MISS");
+    console.log("🗄️ Fetching products from PostgreSQL...");
 
-  if (search?.trim()) {
-    where.OR = [
-      { name: { contains: search.trim(), mode: "insensitive" } },
-      { shortDescription: { contains: search.trim(), mode: "insensitive" } },
-    ];
-  }
+    const { page, limit, search, category } = query;
+    const skip = (page - 1) * limit;
 
-  if (category?.trim() && category.trim() !== "all") {
-    where.category = { equals: category.trim(), mode: "insensitive" };
-  }
+    const where: Record<string, unknown> = {};
 
- 
-  const [items, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.product.count({ where }),
-  ]);
+    if (search?.trim()) {
+      where.OR = [
+        {
+          name: {
+            contains: search.trim(),
+            mode: "insensitive",
+          },
+        },
+        {
+          shortDescription: {
+            contains: search.trim(),
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
 
-  const result = {
-    data: items,
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
+    if (category?.trim() && category.trim() !== "all") {
+      where.category = {
+        equals: category.trim(),
+        mode: "insensitive",
+      };
+    }
 
-  // 2️⃣ Store in Redis (TTL 5 min)
-  await redis.set(cacheKey, JSON.stringify(result), {
-    EX: 300,
-  });
+    const [items, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip,
+        take: limit,
+      }),
 
-  return result;
-   } catch (error) {
-    console.error("Error listing products:", error);
+      prisma.product.count({
+        where,
+      }),
+    ]);
+
+    const result = {
+      data: items,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+
+    console.log("💾 Saving result to Redis...");
+
+    await redis.set(cacheKey, JSON.stringify(result), {
+      EX: 300, // 5 minutes
+    });
+
+    const ttl = await redis.ttl(cacheKey);
+
+    console.log(`✅ Cached successfully (TTL: ${ttl}s)`);
+    console.log("===============================\n");
+
+    return result;
+  } catch (error) {
+    console.error("❌ Error listing products:", error);
     throw error;
-   }
- 
+  }
 }
+
+
 
 export async function getProductById(id: string) {
   const product = await prisma.product.findUnique({ where: { id } });
@@ -92,7 +122,7 @@ export async function getProductById(id: string) {
 export async function createProduct(input: CreateProductInput) {
  
   try{ console.log("product from service", input);
-  // await clearProductCache()
+   await clearProductCache()
  
       const product = await prisma.product.create({
     data: {

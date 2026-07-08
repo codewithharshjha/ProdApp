@@ -4,7 +4,7 @@ import cors from "cors";
 
 import { clerkMiddleware } from "@clerk/express";
 import { OrderProxy } from "./routes/order.proxy";
-import { paymentProxy } from "./routes/payment.proxy";
+import { PaymentProxy } from "./routes/payment.proxy";
 import { productProxy } from "./routes/product.proxy";
 import { userProxy } from "./routes/user.proxy";
 import { verifyUser } from "./middleware/authMiddleware";
@@ -64,7 +64,7 @@ app.use((req, res, next) => {
 app.use("/products", limiter, verifyUser,  productProxy);
 app.use("/orders",limiter, verifyUser,   OrderProxy);
 
-app.use("/payments", limiter, verifyUser,  paymentProxy);
+app.use("/payments", limiter, verifyUser,  PaymentProxy);
 app.use("/users", limiter, verifyUser,  userProxy);
 
 app.listen(8000, () => {

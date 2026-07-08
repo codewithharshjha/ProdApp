@@ -1,41 +1,29 @@
-import { serve } from '@hono/node-server'
+import express from "express";
 
-import { Hono } from 'hono'
-import { uptime } from 'process'
-import { clerkMiddleware, getAuth } from '@hono/clerk-auth'
-import { shouldBeUser } from './middleware/authMiddleware.js'
-const app = new Hono()
-app.use('*', clerkMiddleware())
-  app.get('/health', (c) => {
-    return c.json({
-      status: 'ok',
-      uptime: uptime(),
-      timestamp: Date.now(),
-    })
-  })
+// import { errorHandler } from "./utils/errorHandler.js";
+import {shouldBeUser} from "./middleware/authMiddleware.js"
+import PaymentRouter from "./routes/paymentRoute.js";
+import dotenv from "dotenv";
 
-  app.get('/test',shouldBeUser, (c) => {
+dotenv.config();
+const app = express();
 
-    return c.json({
-      message: 'Payment services is authenticated',
-    userId: c.get('userId'),
-    })
-  })
-const start = async () => {
-try {
-  
-  serve({
-    fetch: app.fetch,
-    port: 8002,
-  })
-  console.log('Payment service is running on ports 8002')
-  }
+console.log("payment service index.ts file")
 
-catch (error) {
-  console.error('Error starting the server:', error)
-  process.exit(1)
+app.use(express.json());
+// app.use("/orders", shouldBeUser,ordersRouter);
+app.use("/payments", PaymentRouter);
+
+ // connect rabbitmq first
+
+
+async function startServer() {
+
+// connect rabbitmq first
+
+  app.listen(8002, () => {
+    console.log("Payment service is running on port 8002");
+  });
 }
 
-}
-
-start()
+startServer();

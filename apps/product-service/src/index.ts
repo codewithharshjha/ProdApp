@@ -38,7 +38,7 @@ app.get("/test", shouldBeUser, (req: Request, res: Response) => {
   });
 });
 
-app.use("/products", productRoutes);
+app.use("/products",shouldBeUser, productRoutes);
 
 app.use(errorHandler);
 

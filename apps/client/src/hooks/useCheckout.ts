@@ -9,7 +9,7 @@ export function useCheckout() {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/orders/checkout", {
+      const res = await fetch("/api/payments/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

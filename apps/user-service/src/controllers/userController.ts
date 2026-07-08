@@ -6,6 +6,7 @@ import {
   addCartItem,
   updateCartItem,
   removeCartItem,
+  getAllUserService
 } from "../services/userService.js";
 import {
   updateProfileSchema,
@@ -84,4 +85,15 @@ export async function removeFromCart(req: Request, res: Response) {
   const cart = await removeCartItem(userId, itemId);
   if (!cart) return res.status(404).json({ error: "Cart item not found" });
   return res.json(cart);
+}
+
+
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const users = await getAllUserService();
+    return res.json(users);
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
 }

@@ -28,6 +28,6 @@ export async function clearProductCache() {
 
     console.log("Deleting:", keys);
 
-    await redis.del({...keys});
+    await redis.del(keys);
   }
 }

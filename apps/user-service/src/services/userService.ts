@@ -112,3 +112,16 @@ export async function removeCartItem(userId: string, itemId: string) {
   await userPrisma.cartItem.delete({ where: { id: itemId } });
   return getCart(userId);
 }
+
+export async function getAllUserService() {
+  try {
+    const users = await userPrisma.userProfile.findMany();
+    if (!users) {
+      throw new Error("No users found");
+    }
+    return users;
+  } catch (error) {
+    console.error("Error in getAllUsers:", error);
+    throw new Error("Failed to fetch users");
+  }
+}

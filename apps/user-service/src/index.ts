@@ -26,6 +26,7 @@ app.get("/health", (_req: Request, res: Response) => {
   res.json({ status: "ok", service: "user-service" });
 });
 
+
 app.use("/users", userRoutes);
 app.use(errorHandler);
 

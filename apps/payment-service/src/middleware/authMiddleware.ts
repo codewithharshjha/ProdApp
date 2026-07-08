@@ -1,15 +1,27 @@
-import { getAuth } from "@hono/clerk-auth";
-import { createMiddleware } from "hono/factory";
+import { Request, Response, NextFunction } from "express";
 
-export const shouldBeUser=createMiddleware<{Variables:{userId:string}}>(async (c,next)=>{
-  
-    const auth = getAuth(c)
-  
-    if (!auth?.userId) {
-      return c.json({
-        message: 'You are not logged in.',
-      })
+declare global {
+  namespace Express {
+    interface Request {
+      userId: string;
     }
-    c.set("userId",auth.userId)
-  await next()
-})
+  }
+}
+
+export const shouldBeUser = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const userId = req.headers["x-user-id"];
+console.log("userId from product service:", req.headers);
+  if (!userId) {
+    return res.status(401).json({
+      message: "Unauthorized From Product Service",
+    });
+  }
+
+  req.userId = userId as string;
+
+  next();
+};

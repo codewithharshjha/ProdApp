@@ -25,7 +25,7 @@ export async function POST() {
       lastName: user.lastName,
       imageUrl: user.imageUrl,
     };
-
+console.log("Payload to send to API Gateway:", payload);
     // Call your API Gateway
     const response = await fetch(
       `${process.env.API_GATEWAY_URL}/users/sync`,
@@ -42,10 +42,10 @@ export async function POST() {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error(error);
+    console.error("error syncing user data:", error);
 
     return NextResponse.json(
-      { message: "Internal Server Error" },
+      { message: "Internal Server Error from sync" },
       { status: 500 }
     );
   }
