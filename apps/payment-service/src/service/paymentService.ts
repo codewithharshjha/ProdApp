@@ -4,7 +4,7 @@ import { Request } from "express";
 // const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // //   apiVersion: "2025-06-30.basil",
 // });
-const stripe= new Stripe("sk_test_51OCEzzSJMCbL07jyZzAAFdcBuCaVwNYHId3HDRhmzaYsV1eJCMQVvmQDdkfujeyQONvkWCtuy61OWuZQTH7JAyXN00lAuwJ1UY",{
+const stripe= new Stripe(process.env.STRIPE_SECRET_KEY!,{
 
 })
 export async function createPayment(req: Request) {
