@@ -14,7 +14,7 @@ export const shouldBeUser = (
   next: NextFunction
 ) => {
   const userId = req.headers["x-user-id"];
-console.log("userId from product service:", req.headers);
+console.log("payment middleware", req.headers);
   if (!userId) {
     return res.status(401).json({
       message: "Unauthorized From Product Service",

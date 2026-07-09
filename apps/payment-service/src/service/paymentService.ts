@@ -1,51 +1,54 @@
+import Stripe from "stripe";
 import { Request } from "express";
 
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+// //   apiVersion: "2025-06-30.basil",
+// });
+const stripe= new Stripe("sk_test_51OCEzzSJMCbL07jyZzAAFdcBuCaVwNYHId3HDRhmzaYsV1eJCMQVvmQDdkfujeyQONvkWCtuy61OWuZQTH7JAyXN00lAuwJ1UY",{
 
-import Razorpay from "razorpay";
-
-const razorpay = new Razorpay({
-    key_id: "rzp_test_TAj9ZNQRCe5GMQ"!,
-    key_secret: "Up3dMwImMKiMI8rYKpEjXpDD"!,
-});
-
+})
 export async function createPayment(req: Request) {
-    try {
-
-        console.log("req.userId from payment service:", req.body);
+  try {
+    console.log("createPayment called with request body:", req.body.items[0].price);
     const userId = req.userId;
 
     const {
-        price: amount,
-        currency = "INR",
-    } = req.body;
+      price,
+      name,
+      quantity = 1,
+    } = req.body.items[0];
 
-    const order = await razorpay.orders.create({
+  const session = await stripe.checkout.sessions.create({
+  payment_method_types: ["card"],
 
-        amount: amount * 100,
+  billing_address_collection: "required",
 
-        currency,
+  line_items: [
+    {
+      price_data: {
+        currency: "inr",
+        product_data: {
+          name,
+        },
+        unit_amount: Math.round(price * 100),
+      },
+      quantity: 1,
+    },
+  ],
 
-        receipt: `receipt_${Date.now()}`,
+  mode: "payment",
 
-    });
+ success_url: "http://localhost:3002/payments/success?session_id={CHECKOUT_SESSION_ID}",
+
+cancel_url: "http://localhost:3002/payments/cancel",
+});
 
     return {
-
-        orderId: order.id,
-
-        amount: order.amount,
-
-        currency: order.currency,
-
-        key: process.env.RAZORPAY_KEY,
-
-        userId,
-
+      checkoutUrl: session.url,
+      sessionId: session.id,
     };
-    }
-    catch (error) {
-        console.error("Error creating payment:", error);
-        throw new Error("Failed to create payment");
-    }
-
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to create Stripe Checkout Session");
+  }
 }

@@ -1,11 +1,13 @@
+"use client";
+
 import { PaymentFormInputs, paymentFormSchema } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useCheckout } from "@/hooks/useCheckout";
 import useCartStore from "@/stores/cartStore";
+
 const PaymentForm = () => {
   const {
     register,
@@ -15,20 +17,25 @@ const PaymentForm = () => {
     resolver: zodResolver(paymentFormSchema as any),
   });
 
-  const router = useRouter();
   const { checkout, loading } = useCheckout();
-  const { cart, clearCart } = useCartStore();
-  const handlePaymentForm: SubmitHandler<PaymentFormInputs> =async (data) => {
+  const { cart } = useCartStore();
+
+  const handlePaymentForm: SubmitHandler<PaymentFormInputs> = async () => {
     try {
       const res = await checkout({
         items: cart,
       });
 
-      console.log("Order created:", res);
+      console.log("Stripe Response:", res);
+      console.log("checkoutUrl:", res?.checkoutUrl);
 
-      clearCart();
+      if (res?.checkoutUrl) {
+        window.location.assign(res.checkoutUrl);
+      } else {
+        console.error("No checkout URL received", res);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Checkout Error:", error);
     }
   };
 
@@ -38,7 +45,10 @@ const PaymentForm = () => {
       onSubmit={handleSubmit(handlePaymentForm)}
     >
       <div className="flex flex-col gap-1">
-        <label htmlFor="cardHolder" className="text-xs text-gray-500 font-medium">
+        <label
+          htmlFor="cardHolder"
+          className="text-xs text-gray-500 font-medium"
+        >
           Name on card
         </label>
         <input
@@ -49,11 +59,17 @@ const PaymentForm = () => {
           {...register("cardHolder")}
         />
         {errors.cardHolder && (
-          <p className="text-xs text-red-500">{errors.cardHolder.message}</p>
+          <p className="text-xs text-red-500">
+            {errors.cardHolder.message}
+          </p>
         )}
       </div>
+
       <div className="flex flex-col gap-1">
-        <label htmlFor="cardNumber" className="text-xs text-gray-500 font-medium">
+        <label
+          htmlFor="cardNumber"
+          className="text-xs text-gray-500 font-medium"
+        >
           Card Number
         </label>
         <input
@@ -64,11 +80,17 @@ const PaymentForm = () => {
           {...register("cardNumber")}
         />
         {errors.cardNumber && (
-          <p className="text-xs text-red-500">{errors.cardNumber.message}</p>
+          <p className="text-xs text-red-500">
+            {errors.cardNumber.message}
+          </p>
         )}
       </div>
+
       <div className="flex flex-col gap-1">
-        <label htmlFor="expirationDate" className="text-xs text-gray-500 font-medium">
+        <label
+          htmlFor="expirationDate"
+          className="text-xs text-gray-500 font-medium"
+        >
           Expiration Date
         </label>
         <input
@@ -79,11 +101,17 @@ const PaymentForm = () => {
           {...register("expirationDate")}
         />
         {errors.expirationDate && (
-          <p className="text-xs text-red-500">{errors.expirationDate.message}</p>
+          <p className="text-xs text-red-500">
+            {errors.expirationDate.message}
+          </p>
         )}
       </div>
+
       <div className="flex flex-col gap-1">
-        <label htmlFor="cvv" className="text-xs text-gray-500 font-medium">
+        <label
+          htmlFor="cvv"
+          className="text-xs text-gray-500 font-medium"
+        >
           CVV
         </label>
         <input
@@ -97,18 +125,37 @@ const PaymentForm = () => {
           <p className="text-xs text-red-500">{errors.cvv.message}</p>
         )}
       </div>
-      <div className='flex items-center gap-2 mt-4'>
-        <Image src="/klarna.png" alt="klarna" width={50} height={25} className="rounded-md"/>
-        <Image src="/cards.png" alt="cards" width={50} height={25} className="rounded-md"/>
-        <Image src="/stripe.png" alt="stripe" width={50} height={25} className="rounded-md"/>
+
+      <div className="flex items-center gap-2 mt-4">
+        <Image
+          src="/klarna.png"
+          alt="klarna"
+          width={50}
+          height={25}
+          className="rounded-md"
+        />
+        <Image
+          src="/cards.png"
+          alt="cards"
+          width={50}
+          height={25}
+          className="rounded-md"
+        />
+        <Image
+          src="/stripe.png"
+          alt="stripe"
+          width={50}
+          height={25}
+          className="rounded-md"
+        />
       </div>
+
       <button
         type="submit"
         className="w-full bg-gray-800 hover:bg-gray-900 transition-all duration-300 text-white p-2 rounded-lg cursor-pointer flex items-center justify-center gap-2"
-        onClick={handlePaymentForm}
         disabled={loading}
       >
-        Checkout
+        {loading ? "Redirecting..." : "Checkout"}
         <ShoppingCart className="w-3 h-3" />
       </button>
     </form>

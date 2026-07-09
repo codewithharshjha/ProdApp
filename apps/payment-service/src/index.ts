@@ -12,7 +12,7 @@ console.log("payment service index.ts file")
 
 app.use(express.json());
 // app.use("/orders", shouldBeUser,ordersRouter);
-app.use("/payments", PaymentRouter);
+app.use("/payments", shouldBeUser,PaymentRouter);
 
  // connect rabbitmq first
 

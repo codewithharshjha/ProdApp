@@ -23,7 +23,10 @@ export function useCheckout() {
         throw new Error("Checkout failed");
       }
 
-      return await res.json();
+      // return await res.json();
+      const data= await res.json();
+      console.log("checkout response data:", data);
+     return data
     } catch (error) {
       console.error("Checkout error:", error);
       throw error;
