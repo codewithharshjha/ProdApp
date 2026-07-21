@@ -2,7 +2,7 @@ import express from "express";
 import {shouldBeUser} from "./middleware/authMiddleware.js"
 import {connectRabbitMQ} from "../../../packages/emailService/src/rabbitmq.js";
 import ordersRouter from "./routes/orders.js";
-import { startEmailConsumer } from "../../../packages/emailService/src/consumer.js";
+import { CreatingOrderAfterpaymentSuccessConsumer, startEmailConsumer } from "../../../packages/emailService/src/consumer.js";
 // import { errorHandler } from "./utils/errorHandler.js";
  import { connectRedis } from "./utils/redis.js";
 import dotenv from "dotenv";
@@ -22,7 +22,9 @@ app.use("/orders", shouldBeUser,ordersRouter);
 async function startServer() {
   await connectRedis(); // connect redis first
  await connectRabbitMQ();
-  await startEmailConsumer();
+  await startEmailConsumer()
+    await CreatingOrderAfterpaymentSuccessConsumer();
+    console.log("order consumers started successfully");
 // connect rabbitmq first
 
   app.listen(8001, () => {

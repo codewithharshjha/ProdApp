@@ -15,36 +15,30 @@ interface WithOrderId extends Request {
 export async function createOrder(req: Request, res: Response) {
 
   try {
-   
+
 
     const userId = req.headers["x-user-id"] as string | undefined;
-    console.log("userId from createOrder controller", userId);
-    // Fetch the user's email from the database
-    // const userProfile = await userPrisma.userProfile.findUnique({
-    //   where: { userId: userId },
-    //   select: { email: true },
-    // });
-    console.log("userId from createOrder controller", userId);
-    const userProfile= await axios.post(`http://localhost:8004/users/sync`,
+
+    const userProfile = await axios.post(`http://localhost:8004/users/sync`,
       {},
       {
-        headers:{
+        headers: {
           "x-user-id": userId || "",
         }
       }
-      
-    ).then(response=>response.data).catch(error=>{
+
+    ).then(response => response.data).catch(error => {
       console.error("Error fetching user profile:", error);
       return null;
     });
-    console.log("userProfile from createOrder controller", userProfile);
+
     const userEmail = userProfile.email;
     if (!userEmail) {
       return res.status(400).send({ error: "User email not found" });
     }
     const parsed = createOrderSchema.safeParse(req.body);
 
-    console.log("parsed from controller", parsed.data);
+
     // Try resolving userId from multiple possible sources (header, req.userId set by gateway, query, or body)
 
 
@@ -57,9 +51,8 @@ export async function createOrder(req: Request, res: Response) {
 
     }
 
-    console.log("service controlle")
     const order = await orderService.createOrder(userId!, parsed.data);
-console.log("order from controller", order);
+    console.log("order from controller", order);
     // await sendOrderEmail(order, userEmail);
     await publishOrderEmail(order, userEmail);
     return res.status(201).send(order);

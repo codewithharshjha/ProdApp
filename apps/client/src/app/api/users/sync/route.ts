@@ -28,11 +28,13 @@ export async function POST() {
 console.log("Payload to send to API Gateway:", payload);
     // Call your API Gateway
     const response = await fetch(
-      `${process.env.API_GATEWAY_URL}/users/sync`,
+      // `${process.env.API_GATEWAY_URL}/users/sync`,
+      "http://localhost:8000/users/sync",
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          userId: user.id,
         },
         body: JSON.stringify(payload),
       }

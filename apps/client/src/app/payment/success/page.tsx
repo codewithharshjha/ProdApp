@@ -1,5 +1,5 @@
 // app/payment/success/page.tsx
-
+"use client";
 import Link from "next/link";
 import { useEffect } from "react";
 interface Props {
@@ -14,11 +14,11 @@ export default async function PaymentSuccessPage({
   const { session_id } = await searchParams;
 
 
-  useEffect(() => {
-  if (!session_id) return;
+//   useEffect(() => {
+//   if (!session_id) return;
 
-  fetch(`/api/payments/verify?session_id=${session_id}`);
-}, [session_id]);
+//   fetch(`/api/payments/verify?session_id=${session_id}`);
+// }, [session_id]);
   return (
     <div className="min-h-screen flex items-center justify-center bg-yellow-50">
       <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
