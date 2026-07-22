@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "ap-south-1"
-        ECR = "123456789012.dkr.ecr.ap-south-1.amazonaws.com"
+        AWS_REGION = "eu-north-1"
+        ECR = "247661383205.dkr.ecr.eu-north-1.amazonaws.com"
     }
 
     stages {
@@ -14,34 +14,46 @@ pipeline {
             }
         }
 
-        stage('Login ECR') {
+        stage('Login to ECR') {
+            steps {
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-ecr'
+                    ]
+                ]) {
+                    sh '''
+                    aws ecr get-login-password --region $AWS_REGION \
+                    | docker login \
+                    --username AWS \
+                    --password-stdin $ECR
+                    '''
+                }
+            }
+        }
+
+        stage('Build Images') {
             steps {
                 sh '''
-                aws ecr get-login-password --region $AWS_REGION \
-                | docker login \
-                --username AWS \
-                --password-stdin $ECR
+                docker compose -f docker-compose.prod.yml build
                 '''
             }
         }
 
-        stage('Build') {
+        stage('Push Images') {
             steps {
-                sh 'docker compose build'
-            }
-        }
-
-        stage('Push') {
-            steps {
-                sh 'docker compose push'
+                sh '''
+                docker compose -f docker-compose.prod.yml push
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
                 sh '''
-                docker compose pull
-                docker compose up -d --remove-orphans
+                docker compose -f docker-compose.prod.yml pull
+
+                docker compose -f docker-compose.prod.yml up -d --remove-orphans
                 '''
             }
         }
