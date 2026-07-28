@@ -88,10 +88,9 @@ services:
     ports:
       - "3002:3002"
 
-  jjenkins:
+  jenkins:
   image: jenkins/jenkins:lts-jdk21
   container_name: jenkins
-
   user: root
 
   restart: unless-stopped
