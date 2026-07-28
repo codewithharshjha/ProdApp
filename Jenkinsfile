@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         AWS_REGION = "eu-north-1"
-        ECR = "247661383205.dkr.ecr.eu-north-1.amazonaws.com"
+        ECR_REGISTRY = "247661383205.dkr.ecr.eu-north-1.amazonaws.com"
+        COMPOSE_FILE = "docker-compose.prod.yml"
     }
 
     stages {
@@ -14,7 +15,7 @@ pipeline {
             }
         }
 
-        stage('Login to ECR') {
+        stage('Login to Amazon ECR') {
             steps {
                 withCredentials([
                     [
@@ -23,10 +24,12 @@ pipeline {
                     ]
                 ]) {
                     sh '''
-                    aws ecr get-login-password --region $AWS_REGION \
-                    | docker login \
+                    set -e
+
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login \
                     --username AWS \
-                    --password-stdin $ECR
+                    --password-stdin $ECR_REGISTRY
                     '''
                 }
             }
@@ -35,7 +38,9 @@ pipeline {
         stage('Build Images') {
             steps {
                 sh '''
-                docker compose -f docker-compose.prod.yml build
+                set -e
+
+                docker compose -f $COMPOSE_FILE build
                 '''
             }
         }
@@ -43,7 +48,9 @@ pipeline {
         stage('Push Images') {
             steps {
                 sh '''
-                docker compose -f docker-compose.prod.yml push
+                set -e
+
+                docker compose -f $COMPOSE_FILE push
                 '''
             }
         }
@@ -51,11 +58,28 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                docker compose -f docker-compose.prod.yml pull
+                set -e
 
-                docker compose -f docker-compose.prod.yml up -d --remove-orphans
+                docker compose -f $COMPOSE_FILE pull
+
+                docker compose -f $COMPOSE_FILE up -d --remove-orphans
                 '''
             }
+        }
+    }
+
+    post {
+
+        success {
+            echo 'Deployment completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed.'
+        }
+
+        always {
+            sh 'docker image prune -f || true'
         }
     }
 }
