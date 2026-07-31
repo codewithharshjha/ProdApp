@@ -1,4 +1,4 @@
-import { prisma } from "@repo/db";
+import { prisma } from "@repo/product-db";
 import type { CreateProductInput, UpdateProductInput, ListProductsQuery } from "../validators/productValidator";
 import { redis,clearProductCache } from "../utils/redis";
 

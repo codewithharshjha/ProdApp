@@ -1,20 +1,51 @@
-FROM node:20-alpine
+###############################
+# Base
+###############################
+FROM node:20-alpine AS base
 
-RUN npm install -g pnpm
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-COPY package*.json ./
-COPY pnpm-lock.yaml ./
+RUN npm install -g turbo
 
-RUN pnpm install --frozen-lockfile
+###############################
+# Prune
+###############################
+FROM base AS pruner
 
 COPY . .
 
-WORKDIR /app/apps/payment-service
+RUN turbo prune payment-service --docker
 
-RUN pnpm build
+###############################
+# Install & Build
+###############################
+FROM base AS builder
+
+WORKDIR /app
+
+COPY --from=pruner /app/out/json/ .
+
+RUN npm ci
+
+COPY --from=pruner /app/out/full/ .
+
+RUN npm run build --workspace=payment-service
+
+###############################
+# Runtime
+###############################
+FROM node:20-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app .
+
+WORKDIR /app/apps/payment-service
 
 EXPOSE 8002
 
-CMD ["pnpm", "start"]
+CMD ["npm", "run", "start"]
