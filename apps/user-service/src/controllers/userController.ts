@@ -80,8 +80,8 @@ export async function updateMyCartItem(req: Request, res: Response) {
 }
 
 export async function removeFromCart(req: Request, res: Response) {
-  const userId = req.userId;
-  const { itemId } = req.params;
+  const userId = req?.userId;
+  const { itemId } = req?.params as string | any;
   const cart = await removeCartItem(userId, itemId);
   if (!cart) return res.status(404).json({ error: "Cart item not found" });
   return res.json(cart);
