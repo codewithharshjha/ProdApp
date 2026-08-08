@@ -13,27 +13,8 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Prepare Environment') {
+      stage('Prepare Environment') {
     steps {
-        sh '''
-            echo "===== USER ====="
-            whoami
-            id
-
-            echo "===== WORKSPACE ====="
-            pwd
-
-            echo "===== PERMISSIONS ====="
-            ls -ld .
-            ls -ld apps
-            ls -ld apps/product-service
-
-            echo "===== TEST WRITE ====="
-            touch apps/product-service/test-file.txt
-            ls -l apps/product-service/test-file.txt
-            rm -f apps/product-service/test-file.txt
-        '''
-
         withCredentials([
             file(credentialsId: 'product-service-env', variable: 'PRODUCT_ENV'),
             file(credentialsId: 'user-service-env', variable: 'USER_ENV'),
@@ -43,7 +24,12 @@ pipeline {
             file(credentialsId: 'client-env', variable: 'CLIENT_ENV')
         ]) {
             sh '''
-                echo "===== COPYING ENV FILES ====="
+                rm -f apps/product-service/.env
+                rm -f apps/user-service/.env
+                rm -f apps/order-service/.env
+                rm -f apps/payment-service/.env
+                rm -f apps/api-gateway/.env
+                rm -f apps/client/.env
 
                 cp "$PRODUCT_ENV" apps/product-service/.env
                 cp "$USER_ENV" apps/user-service/.env
@@ -52,14 +38,7 @@ pipeline {
                 cp "$GATEWAY_ENV" apps/api-gateway/.env
                 cp "$CLIENT_ENV" apps/client/.env
 
-                echo "===== ENV FILES CREATED ====="
-
-                ls -l apps/product-service/.env
-                ls -l apps/user-service/.env
-                ls -l apps/order-service/.env
-                ls -l apps/payment-service/.env
-                ls -l apps/api-gateway/.env
-                ls -l apps/client/.env
+                echo "All environment files created successfully."
             '''
         }
     }
