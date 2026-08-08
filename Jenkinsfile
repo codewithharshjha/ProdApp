@@ -15,6 +15,25 @@ pipeline {
         }
         stage('Prepare Environment') {
     steps {
+        sh '''
+            echo "===== USER ====="
+            whoami
+            id
+
+            echo "===== WORKSPACE ====="
+            pwd
+
+            echo "===== PERMISSIONS ====="
+            ls -ld .
+            ls -ld apps
+            ls -ld apps/product-service
+
+            echo "===== TEST WRITE ====="
+            touch apps/product-service/test-file.txt
+            ls -l apps/product-service/test-file.txt
+            rm -f apps/product-service/test-file.txt
+        '''
+
         withCredentials([
             file(credentialsId: 'product-service-env', variable: 'PRODUCT_ENV'),
             file(credentialsId: 'user-service-env', variable: 'USER_ENV'),
@@ -24,6 +43,8 @@ pipeline {
             file(credentialsId: 'client-env', variable: 'CLIENT_ENV')
         ]) {
             sh '''
+                echo "===== COPYING ENV FILES ====="
+
                 cp "$PRODUCT_ENV" apps/product-service/.env
                 cp "$USER_ENV" apps/user-service/.env
                 cp "$ORDER_ENV" apps/order-service/.env
@@ -31,14 +52,14 @@ pipeline {
                 cp "$GATEWAY_ENV" apps/api-gateway/.env
                 cp "$CLIENT_ENV" apps/client/.env
 
-                echo "===== Checking env files ====="
+                echo "===== ENV FILES CREATED ====="
 
-                ls -la apps/product-service/
-                ls -la apps/user-service/
-                ls -la apps/order-service/
-                ls -la apps/payment-service/
-                ls -la apps/api-gateway/
-                ls -la apps/client/
+                ls -l apps/product-service/.env
+                ls -l apps/user-service/.env
+                ls -l apps/order-service/.env
+                ls -l apps/payment-service/.env
+                ls -l apps/api-gateway/.env
+                ls -l apps/client/.env
             '''
         }
     }
