@@ -1,51 +1,35 @@
-###############################
-# Base Image
-###############################
-FROM node:20-alpine AS base
+FROM node:20-alpine AS builder
 
 RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
+RUN npm install -g npm@11.10.1
 RUN npm install -g turbo
 
-###############################
-# Prune Workspace
-###############################
-FROM base AS pruner
+COPY package.json package-lock.json turbo.json ./
 
-COPY . .
+COPY apps/product-service/package.json ./apps/product-service/package.json
 
-RUN turbo prune product-service --docker
-
-###############################
-# Install Dependencies
-###############################
-FROM base AS installer
-
-WORKDIR /app
-
-COPY --from=pruner /app/out/json/ .
+COPY packages ./packages
 
 RUN npm install
 
-COPY --from=pruner /app/out/full/ .
+COPY apps/product-service ./apps/product-service
 
 RUN npm run build --workspace=product-service
 
-###############################
-# Runtime
-###############################
-FROM node:20-alpine
+
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --from=installer /app .
+COPY --from=builder /app .
 
 WORKDIR /app/apps/product-service
 
 EXPOSE 8003
 
-CMD ["npm","run","start"]
+CMD ["npm", "run", "start"]

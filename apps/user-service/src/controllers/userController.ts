@@ -69,7 +69,7 @@ export async function addToCart(req: Request, res: Response) {
 
 export async function updateMyCartItem(req: Request, res: Response) {
   const userId = req.userId;
-  const { itemId } = req.params;
+  const { itemId } = req?.params as string | any;
   const parsed = updateCartItemSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten() });
