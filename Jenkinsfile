@@ -13,7 +13,36 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Prepare Environment') {
+    steps {
+        withCredentials([
+            file(credentialsId: 'product-service-env', variable: 'PRODUCT_ENV'),
+            file(credentialsId: 'user-service-env', variable: 'USER_ENV'),
+            file(credentialsId: 'order-service-env', variable: 'ORDER_ENV'),
+            file(credentialsId: 'payment-service-env', variable: 'PAYMENT_ENV'),
+            file(credentialsId: 'api-gateway-env', variable: 'GATEWAY_ENV'),
+            file(credentialsId: 'client-env', variable: 'CLIENT_ENV')
+        ]) {
+            sh '''
+                cp "$PRODUCT_ENV" apps/product-service/.env
+                cp "$USER_ENV" apps/user-service/.env
+                cp "$ORDER_ENV" apps/order-service/.env
+                cp "$PAYMENT_ENV" apps/payment-service/.env
+                cp "$GATEWAY_ENV" apps/api-gateway/.env
+                cp "$CLIENT_ENV" apps/client/.env
 
+                echo "===== Checking env files ====="
+
+                ls -la apps/product-service/
+                ls -la apps/user-service/
+                ls -la apps/order-service/
+                ls -la apps/payment-service/
+                ls -la apps/api-gateway/
+                ls -la apps/client/
+            '''
+        }
+    }
+}
         stage('Login to ECR') {
             steps {
                 withCredentials([
