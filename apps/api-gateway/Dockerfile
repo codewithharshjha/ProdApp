@@ -27,7 +27,7 @@ WORKDIR /app
 
 COPY --from=pruner /app/out/json/ .
 
-RUN npm ci
+RUN npm install
 
 COPY --from=pruner /app/out/full/ .
 
