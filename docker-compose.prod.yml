@@ -1,109 +1,169 @@
-
-
 services:
+
   redis:
     image: redis:7
     container_name: redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
+
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
     restart: unless-stopped
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+
+
 
   product-service:
-    build:
-      context: .
-      dockerfile: ./apps/product-service/Dockerfile
+
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/product-service:latest
+
     container_name: product-service
+
     restart: unless-stopped
+
     env_file:
       - ./apps/product-service/.env
+
     environment:
       REDIS_URL: redis://redis:6379
-    ports:
-      - "8003:8003"
+
+    expose:
+      - "8003"
+
     depends_on:
       - redis
+
+
 
   user-service:
-    build:
-      context: .
-      dockerfile: ./apps/user-service/Dockerfile
+
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/user-service:latest
+
     container_name: user-service
+
     restart: unless-stopped
+
     env_file:
       - ./apps/user-service/.env
-    ports:
-      - "8004:8004"
+
+    expose:
+      - "8004"
+
+
 
   order-service:
-    build:
-      context: .
-      dockerfile: ./apps/order-service/Dockerfile
+
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/order-service:latest
+
     container_name: order-service
+
     restart: unless-stopped
+
     env_file:
       - ./apps/order-service/.env
+
     environment:
       REDIS_URL: redis://redis:6379
-    ports:
-      - "8001:8001"
+
+    expose:
+      - "8001"
+
     depends_on:
       - redis
       - rabbitmq
 
+
+
   payment-service:
-    build:
-      context: .
-      dockerfile: ./apps/payment-service/Dockerfile
+
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/payment-service:latest
+
     container_name: payment-service
+
     restart: unless-stopped
+
     env_file:
       - ./apps/payment-service/.env
-    ports:
-      - "8002:8002"
+
+    expose:
+      - "8002"
+
     depends_on:
       - rabbitmq
 
+
+
   api-gateway:
-    build:
-      context: .
-      dockerfile: ./apps/api-gateway/Dockerfile
+
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/api-gateway:latest
+
     container_name: api-gateway
+
     restart: unless-stopped
+
     env_file:
       - ./apps/api-gateway/.env
+
     environment:
+
       REDIS_URL: redis://redis:6379
-    ports:
-      - "8000:8000"
+
+    expose:
+      - "8000"
+
     depends_on:
+
       - user-service
       - product-service
       - order-service
       - payment-service
 
+
+
   client:
-    build:
-      context: .
-      dockerfile: ./apps/client/Dockerfile
+
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/client:latest
+
     container_name: client
+
     restart: unless-stopped
+
     env_file:
       - ./apps/client/.env
-    ports:
-      - "3002:3002"
+
+    expose:
+      - "3002"
+
     depends_on:
       - api-gateway
+
+
+
+  nginx:
+
+    image: nginx:latest
+
+    container_name: nginx
+
+    restart: always
+
+
+    ports:
+
+      - "80:80"
+
+
+    volumes:
+
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+
+    depends_on:
+
+      - api-gateway
+      - client
