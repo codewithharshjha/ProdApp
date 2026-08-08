@@ -43,7 +43,7 @@ pipeline {
         stage('Push Images') {
             steps {
                 sh '''
-                docker compose -f docker-compose.prod.yml push
+                docker-compose -f docker-compose.prod.yml push
                 '''
             }
         }
@@ -51,9 +51,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                docker compose -f docker-compose.prod.yml pull
+                docker-compose -f docker-compose.prod.yml pull
 
-                docker compose -f docker-compose.prod.yml up -d --remove-orphans
+                docker-compose -f docker-compose.prod.yml up -d --remove-orphans
                 '''
             }
         }
