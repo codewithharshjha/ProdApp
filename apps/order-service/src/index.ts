@@ -1,8 +1,8 @@
 import express from "express";
 import {shouldBeUser} from "./middleware/authMiddleware.js"
-import {connectRabbitMQ} from "../../../packages/emailService/src/rabbitmq.js";
+import {connectRabbitMQ} from "@repo/emailService";
 import ordersRouter from "./routes/orders.js";
-import { CreatingOrderAfterpaymentSuccessConsumer, startEmailConsumer } from "../../../packages/emailService/src/consumer.js";
+import { CreatingOrderAfterpaymentSuccessConsumer, startEmailConsumer } from "@repo/emailService";
 // import { errorHandler } from "./utils/errorHandler.js";
  import { connectRedis } from "./utils/redis.js";
 import dotenv from "dotenv";
