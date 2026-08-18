@@ -3,8 +3,8 @@ import { Request, Response } from "express";
 import axios from "axios";
 import { createOrderSchema } from "../validators/orderValidator.js";
 import * as orderService from "../services/orderService.js";
-import { sendOrderEmail } from "../../../../packages/emailService/src/sendEmail.js"
-import { publishOrderEmail } from "../../../../packages/emailService/src/publisher.js"
+
+import { publishOrderEmail } from "@repo/emailService";
 interface WithOrderId extends Request {
   params: {
     id: string;

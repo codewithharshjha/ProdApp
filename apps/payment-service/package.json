@@ -18,7 +18,10 @@
     "axios": "^1.18.1",
     "hono": "^4.10.7",
     "razorpay": "^2.9.6",
-    "stripe": "^22.3.0"
+    "stripe": "^22.3.0",
+    "@repo/emailService": "*",
+    "@repo/payment-db": "*"
+    
   },
   "devDependencies": {
     "@repo/typescript-config": "*",

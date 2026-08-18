@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 import * as paymentService from "../service/paymentService.js";
 import Stripe from "stripe";
 import { paymentPrisma } from "../../../../packages/paymentdb/src/index.js";
-import { publishPaymentSuccess } from "../../../../packages/emailService/src/publisher.js";
+import { publishPaymentSuccess } from "@repo/emailService";
 const stripe = new Stripe(
   process.env.STRIPE_SECRET_KEY!
 );

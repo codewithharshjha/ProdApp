@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 import { Request } from "express";
-import { paymentPrisma } from "../../../../packages/paymentdb/src/index.js";
+import { paymentPrisma } from "@repo/payment-db"
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 

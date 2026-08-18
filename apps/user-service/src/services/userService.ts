@@ -58,7 +58,7 @@ export async function getCart(userId: string) {
   return {
     id: cart.id,
     userId: cart.userId,
-    items: cart.items.map((i) => ({
+    items: cart.items.map((i: any) => ({
       id: i.id,
       productId: i.productId,
       quantity: i.quantity,
@@ -91,7 +91,7 @@ export async function addCartItem(userId: string, input: AddCartItemInput) {
 export async function updateCartItem(userId: string, itemId: string, input: UpdateCartItemInput) {
   const cart = await userPrisma.cart.findUnique({ where: { userId }, include: { items: true } });
   if (!cart) return null;
-  const item = cart.items.find((i) => i.id === itemId);
+  const item = cart.items.find((i: any) => i.id === itemId);
   if (!item) return null;
   if (input.quantity === 0) {
     await userPrisma.cartItem.delete({ where: { id: itemId } });
@@ -107,7 +107,7 @@ export async function updateCartItem(userId: string, itemId: string, input: Upda
 export async function removeCartItem(userId: string, itemId: string) {
   const cart = await userPrisma.cart.findUnique({ where: { userId }, include: { items: true } });
   if (!cart) return null;
-  const item = cart.items.find((i) => i.id === itemId);
+  const item = cart.items.find((i: any) => i.id === itemId);
   if (!item) return null;
   await userPrisma.cartItem.delete({ where: { id: itemId } });
   return getCart(userId);
