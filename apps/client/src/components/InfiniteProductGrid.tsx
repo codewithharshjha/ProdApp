@@ -27,7 +27,7 @@ export default function InfiniteProductGrid({
   const [hasMore, setHasMore] = useState(totalPages > 1);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
-  const loadMoreRef = useRef<() => void>();
+  const loadMoreRef = useRef<(() => void) | null>(null);
 
   const loadMore = useCallback(async () => {
     if (loading || !hasMore) return;

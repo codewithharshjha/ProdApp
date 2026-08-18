@@ -51,9 +51,9 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.coerce.number().positive("Price must be positive"),
   category: z.string().optional(),
-  sizes: z.array(z.string()).default([]),
-  colors: z.array(z.string()).default([]),
-  images: z.record(z.string(), z.string()).default({}),
+  sizes: z.array(z.string()),
+  colors: z.array(z.string()),
+  images: z.record(z.string(), z.string()),
 });
 
 type FormValues = z.infer<typeof formSchema>;

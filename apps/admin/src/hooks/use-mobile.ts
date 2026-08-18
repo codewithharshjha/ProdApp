@@ -19,12 +19,16 @@ export function useIsMobile() {
 }
 
 export const getAllProducts = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL ?? "http://localhost:8003"}/products/getAllProducts`, {
-    cache: "no-store",
-  });
-  if (!res.ok) return [];
-  const json = await res.json();
-  return json.data ?? [];
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL ?? "http://localhost:8003"}/products/getAllProducts`, {
+      cache: "no-store",
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data ?? [];
+  } catch {
+    return [];
+  }
 }
 export const getProduct =async(id: string)=> {
   const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products/${id}`, {

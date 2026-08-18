@@ -15,6 +15,7 @@
   "dependencies": {
     "@clerk/express": "^1.7.53",
     "@repo/db": "^1.0.0",
+    "@repo/product-db": "*",
     "cors": "^2.8.6",
     "dotenv": "^16.0.3",
     "express": "^5.0.3",

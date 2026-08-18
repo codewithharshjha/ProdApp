@@ -1,19 +1,15 @@
-import { auth ,getAuth } from "@clerk/nextjs/server";
-import { NextResponse  } from "next/server";
-import { Request } from "express";
+import { auth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse  } from "next/server";
 
 const ORDER_SERVICE_URL =
   process.env.NEXT_PUBLIC_ORDER_SERVICE_URL ?? "http://localhost:8000";
 console.log("ORDER_SERVICE_URL", ORDER_SERVICE_URL);
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const { getToken } = await auth();
+    const { getToken, userId } = await auth();
     const token = await getToken();
-     const authuser = getAuth(req);
 
-  const userId = authuser?.userId;
-
-    const body = await (req as any).json();
+    const body = await req.json();
 console.log("body from client", body);
     const res = await fetch(`${ORDER_SERVICE_URL}/orders/create`, {
       method: "POST",

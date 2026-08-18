@@ -84,7 +84,7 @@ export async function listProducts(query: ListProductsQuery) {
     ]);
 
     const result = {
-      data: items,
+      data: items.map(toProductDto),
       pagination: {
         page,
         limit,

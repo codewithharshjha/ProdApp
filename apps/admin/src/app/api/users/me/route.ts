@@ -1,18 +1,13 @@
-import { auth ,getAuth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse  } from "next/server";
-import { Request } from "express";
 
 const USER_SERVICE_URL =
   process.env.NEXT_PUBLIC_USER_SERVICE_URL ?? "http://localhost:8000";
 console.log("USER_SERVICE_URL", USER_SERVICE_URL);
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const { getToken } = await auth();
+    const { getToken, userId } = await auth();
     const token = await getToken();
-     const authuser = getAuth(req);
-
-  const userId = authuser?.userId;
-
 
     const res = await fetch(`${USER_SERVICE_URL}/users/all`, {
       method: "GET",
