@@ -2,7 +2,11 @@
 
 import { getChannel } from "./rabbitmq";
 import { sendOrderEmail } from "./sendEmail";
-import { createOrder } from "../../../apps/order-service/src/services/orderService.js";
+
+type CreateOrder = (
+  userId: string,
+  input: { items: unknown[] }
+) => Promise<unknown>;
 
 function isValidPaymentSuccessPayload(data: unknown): data is { userId: string; items: unknown[] } {
   return Boolean(
@@ -34,7 +38,7 @@ export async function startEmailConsumer() {
   });
 }
 
-export async function CreatingOrderAfterpaymentSuccessConsumer() {
+export async function CreatingOrderAfterpaymentSuccessConsumer(createOrder: CreateOrder) {
   const channel = getChannel();
 
   await channel.assertQueue("payment.success", {

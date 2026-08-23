@@ -3,6 +3,8 @@ import {shouldBeUser} from "./middleware/authMiddleware.js"
 import {connectRabbitMQ} from "@repo/emailService";
 import ordersRouter from "./routes/orders.js";
 import { CreatingOrderAfterpaymentSuccessConsumer, startEmailConsumer } from "@repo/emailService";
+import { createOrder } from "./services/orderService.js";
+import type { CreateOrderInput } from "./validators/orderValidator.js";
 // import { errorHandler } from "./utils/errorHandler.js";
  import { connectRedis } from "./utils/redis.js";
 import dotenv from "dotenv";
@@ -23,7 +25,9 @@ async function startServer() {
   await connectRedis(); // connect redis first
  await connectRabbitMQ();
   await startEmailConsumer()
-    await CreatingOrderAfterpaymentSuccessConsumer();
+    await CreatingOrderAfterpaymentSuccessConsumer((userId, input) =>
+      createOrder(userId, input as CreateOrderInput)
+    );
     console.log("order consumers started successfully");
 // connect rabbitmq first
 
