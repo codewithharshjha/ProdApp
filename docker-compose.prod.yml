@@ -108,19 +108,14 @@ services:
       - api-gateway
 
   nginx:
-  build:
-    context: ./nginx
-    dockerfile: Dockerfile
-
-  image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/nginx:latest
-
-  container_name: nginx
-
-  restart: always
-
-  ports:
-    - "80:80"
-
-  depends_on:
-    - api-gateway
-    - client
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+      - client
