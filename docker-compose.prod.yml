@@ -97,6 +97,8 @@ services:
     build:
       context: .
       dockerfile: ./apps/client/Dockerfile
+      args:
+        NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
     image: 247661383205.dkr.ecr.eu-north-1.amazonaws.com/client:latest
     container_name: client
     restart: unless-stopped
