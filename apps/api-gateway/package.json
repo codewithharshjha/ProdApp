@@ -21,6 +21,7 @@
     "http-proxy-middleware": "^3.0.5"
   },
   "devDependencies": {
+    "@repo/typescript-config": "*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "tsx": "^4.20.6",
