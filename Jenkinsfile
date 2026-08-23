@@ -64,6 +64,7 @@ pipeline {
         stage('Build Images') {
             steps {
                 sh '''
+                export NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$(grep '^NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=' apps/client/.env | cut -d '=' -f2-)
                 docker-compose -f docker-compose.prod.yml build
                 '''
             }
