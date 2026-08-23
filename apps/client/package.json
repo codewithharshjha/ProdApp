@@ -2,9 +2,9 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
- "scripts": {
-  "dev": "tsx --watch src/index.ts",
-  "build": "tsc",
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
   "start": "next start",
   "check-types": "tsc --noEmit"
 },
