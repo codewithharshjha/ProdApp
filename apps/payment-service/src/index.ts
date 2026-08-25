@@ -5,7 +5,7 @@ import PaymentRouter from "./routes/paymentRoute.js";
 import { shouldBeUser } from "./middleware/authMiddleware.js";
 import { stripeWebhook } from "./controller/paymentController.js";
 
-import { connectRabbitMQ } from "../../../packages/emailService/src/rabbitmq.js";
+import { connectRabbitMQ } from "@repo/emailService";
 
 dotenv.config();
 

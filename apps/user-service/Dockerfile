@@ -33,6 +33,7 @@ COPY --from=pruner /app/out/full/ .
 
 RUN DATABASE_URL=postgresql://localhost:5432/build npm run db:generate --workspace=@repo/user-db
 
+RUN npm run build --workspace=@repo/user-db
 RUN npm run build --workspace=user-service
 
 ###############################

@@ -1,6 +1,6 @@
 // packages/email/src/publisher.ts
 
-import { getChannel } from "./rabbitmq";
+import { getChannel } from "./rabbitmq.js";
 
 export async function publishOrderEmail(data: any, email: string) {
   const channel = getChannel();
