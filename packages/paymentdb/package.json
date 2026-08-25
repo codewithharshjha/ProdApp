@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@repo/typescript-config": "*",
     "prisma": "^6.19.0"
   },
   "dependencies": {
