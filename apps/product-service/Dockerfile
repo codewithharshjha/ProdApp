@@ -19,6 +19,7 @@ COPY apps/product-service ./apps/product-service
 
 RUN DATABASE_URL=postgresql://localhost:5432/build npm run db:generate --workspace=@repo/product-db
 
+RUN npm run build --workspace=@repo/product-db
 RUN npm run build --workspace=product-service
 
 
