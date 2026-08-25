@@ -31,6 +31,7 @@ RUN npm install
 
 COPY --from=pruner /app/out/full/ .
 
+RUN npm run build --workspace=@repo/emailService
 RUN npm run build --workspace=order-service
 
 ###############################

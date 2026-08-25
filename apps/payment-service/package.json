@@ -15,6 +15,7 @@
   "dependencies": {
     "@hono/clerk-auth": "^3.0.3",
     "@hono/node-server": "^1.19.6",
+    "@repo/product-db": "*",
     "axios": "^1.18.1",
     "hono": "^4.10.7",
     "razorpay": "^2.9.6",

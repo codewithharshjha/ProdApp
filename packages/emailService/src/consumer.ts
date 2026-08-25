@@ -1,7 +1,7 @@
 // packages/email/src/emailConsumer.ts
 
-import { getChannel } from "./rabbitmq";
-import { sendOrderEmail } from "./sendEmail";
+import { getChannel } from "./rabbitmq.js";
+import { sendOrderEmail } from "./sendEmail.js";
 
 type CreateOrder = (
   userId: string,
