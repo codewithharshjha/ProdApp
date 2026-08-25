@@ -21,6 +21,10 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "amqplib": "^2.0.1",
     "resend": "^6.12.4"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*"
   }
 }
