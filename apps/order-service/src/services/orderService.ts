@@ -70,7 +70,7 @@ console.log("items from createOrder",input.items);
       status: "CONFIRMED",
       items: {
         create: input.items.map((item) => ({
-         name: item.name,
+          name: item.name ?? "",
           productId: item.id ,
           quantity: item.quantity,
           price: item.price,
