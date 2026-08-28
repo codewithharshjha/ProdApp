@@ -36,6 +36,7 @@ RUN DATABASE_URL=postgresql://localhost:5432/build npm run db:generate --workspa
 RUN npm run build --workspace=@repo/emailService
 RUN npm run build --workspace=@repo/payment-db
 RUN npm run build --workspace=payment-service
+RUN test -f /app/apps/payment-service/dist/apps/payment-service/src/index.js
 
 ###############################
 # Runtime

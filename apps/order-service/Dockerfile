@@ -31,6 +31,8 @@ RUN npm install
 
 COPY --from=pruner /app/out/full/ .
 
+RUN DATABASE_URL=postgresql://localhost:5432/build npm run db:generate --workspace=@repo/order-db
+RUN npm run build --workspace=@repo/order-db
 RUN npm run build --workspace=@repo/emailService
 RUN npm run build --workspace=order-service
 
