@@ -14,6 +14,11 @@ services:
     expose:
       - "5672"
       - "15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   product-service:
     build:
@@ -54,11 +59,14 @@ services:
       - ./apps/order-service/.env
     environment:
       REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     expose:
       - "8001"
     depends_on:
-      - redis
-      - rabbitmq
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
   payment-service:
     build:
@@ -69,10 +77,13 @@ services:
     restart: unless-stopped
     env_file:
       - ./apps/payment-service/.env
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
     expose:
       - "8002"
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
 
   api-gateway:
     build:

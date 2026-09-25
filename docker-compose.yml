@@ -15,6 +15,12 @@ services:
       - "5672:5672"
       - "15672:15672"
 
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
 
   product-service:
@@ -73,9 +79,34 @@ services:
 
     environment:
       - REDIS_URL=redis://redis:6379
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
 
     depends_on:
-      - redis
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: ./apps/payment-service/Dockerfile
+
+    container_name: payment-service
+
+    ports:
+      - "8002:8002"
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    environment:
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   api-gateway:
     build:
