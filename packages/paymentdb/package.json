@@ -2,8 +2,8 @@
   "name": "@repo/payment-db",
   "version": "1.0.0",
   "type": "module",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+    "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "check-types": "tsc --noEmit",
