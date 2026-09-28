@@ -44,12 +44,15 @@ console.log("product",product);
       {/* IMAGE */}
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-[2/3]">
-          {/* <Image
-            src={product?.images[productTypes.color] ||""}
+          <Image
+            // src={product?.images[productTypes.color] ||""}
+            src={product?.images[0]||""}
+            width={300}
+            height={850}
             alt={product.name}
-            fill
+            // fill
             className="object-cover hover:scale-105 transition-all duration-300"
-          /> */}
+          />
         </div>
       </Link>
       {/* PRODUCT DETAIL */}

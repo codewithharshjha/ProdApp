@@ -12,6 +12,16 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+   images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com', // Replace with your image host domain
+        port: '',
+        pathname: '/**', // Allows all paths under this domain
+      },
+    ],
+  },
 };
 
 export default nextConfig;
