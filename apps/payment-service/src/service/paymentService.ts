@@ -56,10 +56,10 @@ console.log("payment record created:", payment);
         mode: "payment",
 
         success_url:
-          "http://localhost:3002/payment/success?session_id={CHECKOUT_SESSION_ID}",
+          "http://localhost:3000/payment/success?session_id={CHECKOUT_SESSION_ID}",
 
         cancel_url:
-          "http://localhost:3002/payment/cancel",
+          "http://localhost:3000/payment/cancel",
 
         metadata: {
           paymentId: payment.id,

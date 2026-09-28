@@ -32,7 +32,9 @@ import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
 import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
-
+import Image from "next/image";
+import { upload } from "@imagekit/next";
+import { ImagePlus, X } from "lucide-react";
 const categories = [
   "T-shirts",
   "Shoes",
@@ -90,6 +92,10 @@ const AddProduct = ({ onSuccess }: AddProductProps) => {
   const { getToken } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadingColors, setUploadingColors] = useState<string[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
+    {}
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -99,6 +105,77 @@ const AddProduct = ({ onSuccess }: AddProductProps) => {
       images: {},
     },
   });
+
+  const uploadImage = async (color: string, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setError("Choose an image file to upload.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("Images must be 10 MB or smaller.");
+      return;
+    }
+
+    setError(null);
+    setUploadingColors((current) => [...current, color]);
+    setUploadProgress((current) => ({ ...current, [color]: 0 }));
+
+    try {
+      const authResponse = await fetch("/api/imagekit-auth", {
+        cache: "no-store",
+      });
+      if (!authResponse.ok) {
+        const body = await authResponse.json().catch(() => null);
+        throw new Error(
+          body?.error ?? `ImageKit authentication failed (${authResponse.status}).`
+        );
+      }
+      const { token, expire, signature, publicKey } = await authResponse.json();
+      const result = await upload({
+        file,
+        fileName: file.name,
+        folder: "/products",
+        token,
+        expire,
+        signature,
+        publicKey,
+        onProgress: (event) => {
+          setUploadProgress((current) => ({
+            ...current,
+            [color]: Math.round((event.loaded / event.total) * 100),
+          }));
+        },
+      });
+
+      if (!result.url) {
+        throw new Error("ImageKit uploaded the file without returning a URL.");
+      }
+      form.setValue(
+        `images.${color}`,
+        result.url,
+        { shouldDirty: true, shouldValidate: true }
+      );
+    } catch (uploadError) {
+      setError(
+        uploadError instanceof Error
+          ? uploadError.message
+          : "Image upload failed. Please try again."
+      );
+    } finally {
+      setUploadingColors((current) => current.filter((value) => value !== color));
+    }
+  };
+
+  const removeImage = (color: string) => {
+    const { [color]: removedImage, ...images } = form.getValues("images");
+    void removedImage;
+    form.setValue("images", images, { shouldDirty: true, shouldValidate: true });
+    setUploadProgress((current) => {
+      const { [color]: removedProgress, ...progress } = current;
+      void removedProgress;
+      return progress;
+    });
+  };
 
   const onSubmit = async (values: FormValues) => {
     setIsSubmitting(true);
@@ -344,32 +421,61 @@ const AddProduct = ({ onSuccess }: AddProductProps) => {
                           {field.value && field.value.length > 0 && (
                             <div className="mt-4 space-y-3">
                               <p className="text-sm font-medium">
-                                Image URLs for selected colors:
+                                Product images by color
                               </p>
                               {field.value.map((color) => (
-                                <div
-                                  className="flex items-center gap-2"
-                                  key={color}
-                                >
-                                  <div
-                                    className="w-2 h-2 rounded-full shrink-0"
-                                    style={{ backgroundColor: color }}
-                                  />
-                                  <span className="text-sm min-w-[60px]">
-                                    {color}
-                                  </span>
-                                  <Input
-                                    type="url"
-                                    placeholder="https://..."
-                                    onChange={(e) => {
-                                      const current =
-                                        form.getValues("images") ?? {};
-                                      form.setValue("images", {
-                                        ...current,
-                                        [color]: e.target.value,
-                                      });
-                                    }}
-                                  />
+                                <div className="space-y-2" key={color}>
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className="h-3 w-3 rounded-full shrink-0"
+                                      style={{ backgroundColor: color }}
+                                    />
+                                    <span className="text-sm capitalize">{color}</span>
+                                  </div>
+                                  {form.watch(`images.${color}`) ? (
+                                    <div className="flex items-center gap-3 rounded-md border p-2">
+                                      <Image
+                                        src={form.watch(`images.${color}`)!}
+                                        alt={`${color} product`}
+                                        width={64}
+                                        height={64}
+                                        unoptimized
+                                        className="h-16 w-16 rounded object-cover"
+                                      />
+                                      <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+                                        Uploaded to ImageKit
+                                      </span>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        aria-label={`Remove ${color} image`}
+                                        onClick={() => removeImage(color)}
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <label className="flex cursor-pointer items-center gap-2 rounded-md border border-dashed px-3 py-3 text-sm text-muted-foreground hover:bg-muted/50">
+                                      <ImagePlus className="h-4 w-4" />
+                                      <span>
+                                        {uploadingColors.includes(color)
+                                          ? `Uploading ${uploadProgress[color] ?? 0}%`
+                                          : "Choose an image"}
+                                      </span>
+                                      <Input
+                                        type="file"
+                                        accept="image/*"
+                                        className="sr-only"
+                                        disabled={uploadingColors.includes(color)}
+                                        onChange={(event) => {
+                                          const file = event.target.files?.[0];
+                                          if (file) void uploadImage(color, file);
+                                          event.target.value = "";
+                                        }}
+                                      />
+                                    </label>
+                                  )}
                                 </div>
                               ))}
                             </div>

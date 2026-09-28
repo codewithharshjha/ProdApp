@@ -5,11 +5,10 @@ import amqp from "amqplib";
 let channel: amqp.Channel;
 
 export async function connectRabbitMQ() {
-  const rabbitMqUrl =
-    process.env.RABBITMQ_URL ?? "amqp://guest:guest@localhost:5672";
-
-  console.log(`[RabbitMQ] connecting to ${rabbitMqUrl}`);
-  const connection = await amqp.connect(rabbitMqUrl);
+  console.log("[RabbitMQ] connecting to amqp://guest:guest@localhost:5672");
+  const connection = await amqp.connect(
+    "amqp://guest:guest@localhost:5672"
+  );
 
   channel = await connection.createChannel();
   console.log("[RabbitMQ] channel created");
